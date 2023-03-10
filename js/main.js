@@ -1,94 +1,93 @@
 const inputElem = document.querySelector('input')
 
+
 let apiData = {
     url: 'https://api.openweathermap.org/data/2.5/weather?q=',
     key: '26c4d8ad14b57209671494df9bd9fcb9'
 }
 
-function fetchData() {
-    let countryValue = inputElem.value
+function fetchData(inputFunction) {
+    let countryValue = inputElem.value ? inputElem.value : inputFunction
 
-    console.log(countryValue)
     fetch(`${apiData.url}${countryValue}&&appid=${apiData.key}&units=metricather?q=`).
         then(res => res.json())
         .then(data => {
-            showData(data)
-            inputElem.value=""
+            showData(data, inputFunction)
+            inputElem.value = ""
 
         })
         .catch(err => {
-
+            console.log(err);
         })
 }
 
 
-const images = ["./asset/cloud-fill.svg", "./asset/cloud-fog.svg", "./asset/cloud-snow.svg", "./asset/cloud-drizzle.svg", "./asset/sun.svg", "./asset/cloud-lightning.svg", "./asset/cloud-sun.svg"]
+const images = ["./asset/cloud-fill.svg", "./asset/cloud-fog.svg", "./asset/cloud-snow.svg", "./asset/cloud-drizzle.svg", "./asset/sun.svg", "./asset/cloud-lightning.svg", "./asset/cloud-sun.svg","./asset/default.svg"]
 
 const imagesHandler = main => {
-    if (main == "Clouds") {
-        return images[0]
+    switch (main) {
+        case "Clouds":
+            return images[0];
+        case "Mist":
+            return images[1];
+        case "Snow":
+            return images[2];
+        case "Rain":
+            return images[3];
+        case "Clear":
+            return images[4];
+        case "Thunderstorm":
+            return images[5];
+        case "Few clouds":
+            return images[6];
+        default:
+            return images[7]
     }
-    if (main == "Mist") {
-        return images[1]
-    }
-    if (main == "Snow") {
-        return images[2]
-    }
-    if (main == "Rain") {
-        return images[3]
-    }
-    if (main == "Clear") {
-        return images[4]
-    }
-    if (main == "Thunderstorm") {
-        return images[5]
-    }
-    if (main == "Few clouds") {
-        return images[6]
-    }
+
 
 
 }
-
 
 
 const mainWrapper = document.querySelector("#main-wrapper");
 
+function showData(data, save) {
+    console.log(data.weather[0].main);
 
-function showData(data) {
-
-    mainWrapper.insertAdjacentHTML("beforeend",
+    mainWrapper.insertAdjacentHTML("afterbegin",
         `
-<div class="col-12 col-md-6 col-lg-4 rounded-4" id="weather-wrapper">
-<div class="text-white p-2 p-md-4 ">
+<div class="col-12 col-md-6 col-lg-4 rounded-4 shadow" id="weather-wrapper">
+<div class="text-white p-3 p-md-4 ">
 
-    <div class="row">
-        <div class="col-6">
-            <p class="h3"><span>${data.name}</span> <span class="h3 text-warning">${data.sys.country}</span></p>
-            <p>${formattedToday}</p>
-        </div>
-        <div class="col-6">
-            <p class="d-flex flex-column align-items-end mt-2">${day}</p>
-        </div>
+<div class="row">
+    <div class="col-6">
+        <p class="h3"><span>${data.name}</span> <span class="text-warning">${data.sys.country}</span></p>
     </div>
-
-    <div class="row my-5">
-        <div class="col-6 h1">${`${Math.floor(data.main.temp - 273.15)}°c`}</div>
-        <div class="col-6"><p class="h3 text-end">${data.weather[0].main}</p></div>
-    </div>
-
-
-    <div class="row mb-5">
-        <div class="mx-auto" id="svg">
-            <img class="w-100" src="${imagesHandler(data.weather[0].main)}" alt="weather">
-        </div>
-
-    </div>
-
 
 </div>
 
+<div class="row my-5">
+    <div class="col-6 h1">${`${Math.floor(data.main.temp - 273.15)}°c`}</div>
+    <div class="col-6">
+        <p class="h3 text-end">${data.weather[0].main}</p>
+    </div>
 </div>
+
+
+<div class="row mb-5">
+    <div class="mx-auto" id="svg">
+        <img  src="${imagesHandler(data.weather[0].main)}" alt="weather" style="filter: drop-shadow(1px 1px 4px #9f9e9e);width:8rem;height:8rem;">
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-6"><img src="./asset/icon/trash.svg" alt="trash"  style="width: 1.5rem; cursor:pointer" onClick="removeHandler(event)"></div>
+    <div class="col-6 d-flex justify-content-end"><img src="${save ? "./asset/icon/save.svg" : "./asset/icon/no-save.svg"}" alt="save" style="width: 1.5rem;cursor:pointer" onClick="saveHandler(event)" data-city="${data.name}"></div>
+</div>
+</div>
+
+</div>
+
 `)
 
 
@@ -104,6 +103,8 @@ inputElem.addEventListener('keypress', (event) => {
     }
 })
 
+
+
 let btnSearch = document.querySelector("#get");
 btnSearch.addEventListener('click', () => {
     fetchData()
@@ -112,18 +113,52 @@ btnSearch.addEventListener('click', () => {
 
 
 
-const today = new Date();
-const yyyy = today.getFullYear();
-let mm = today.getMonth() + 1;
-let dd = today.getDate();
+function removeHandler(event) {
+    event.currentTarget.parentNode.parentNode.parentNode.parentNode.remove()
 
-if (dd < 10) dd = '0' + dd;
-if (mm < 10) mm = '0' + mm;
+}
 
-const formattedToday = dd + '/' + mm + '/' + yyyy;
 
-const weekday = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
-const d = new Date();
-let day = weekday[d.getDay()];
 
+
+let cities = []
+if (localStorage.getItem("save")) {
+    cities = [...JSON.parse(localStorage.getItem("save"))]
+}
+
+
+
+const bodyLoaded = () => {
+    cities.forEach(item => {
+        fetchData(item)
+    })
+}
+
+
+
+
+
+function saveHandler(event) {
+    let name = event.currentTarget.dataset.city;
+    let flag = cities.findIndex((item) => item === name)
+
+    if (flag === -1) {
+        cities.push(name)
+        localStorage.setItem('save', JSON.stringify(cities));
+        event.currentTarget.src = "./asset/icon/save.svg"
+    } else {
+        event.currentTarget.src = "./asset/icon/no-save.svg"
+        cities.splice(flag, 1);
+        localStorage.setItem('save', JSON.stringify(cities));
+
+    }
+}
+
+
+document.querySelector("#clear-item").addEventListener("click", () => {
+    mainWrapper.replaceChildren("")
+})
+document.querySelector("#clear-save").addEventListener("click", () => {
+    localStorage.clear();
+})
