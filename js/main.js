@@ -17,12 +17,16 @@ function fetchData(inputFunction) {
 
         })
         .catch(err => {
-            console.log(err);
+
+            Swal.fire({
+                text: 'The desired city was not found',
+                icon: 'error'
+            })
         })
 }
 
 
-const images = ["./asset/cloud-fill.svg", "./asset/cloud-fog.svg", "./asset/cloud-snow.svg", "./asset/cloud-drizzle.svg", "./asset/sun.svg", "./asset/cloud-lightning.svg", "./asset/cloud-sun.svg","./asset/default.svg"]
+const images = ["./asset/cloud-fill.svg", "./asset/cloud-fog.svg", "./asset/cloud-snow.svg", "./asset/cloud-drizzle.svg", "./asset/sun.svg", "./asset/cloud-lightning.svg", "./asset/cloud-sun.svg", "./asset/default.svg"]
 
 const imagesHandler = main => {
     switch (main) {
@@ -52,7 +56,6 @@ const imagesHandler = main => {
 const mainWrapper = document.querySelector("#main-wrapper");
 
 function showData(data, save) {
-    console.log(data.weather[0].main);
 
     mainWrapper.insertAdjacentHTML("afterbegin",
         `

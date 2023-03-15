@@ -1,10 +1,11 @@
 * {
     box-sizing: border-box;
+    font-family: sans-serif !important;
+
 }
 
 body {
     background: linear-gradient(to right, #0f0c29, #302b63, #24243e);
-    font-family: sans-serif;
     overflow-x: hidden;
     position: relative;
 }
@@ -63,4 +64,14 @@ input:focus {
         width: 32%;
         z-index: 100;
     }
+}
+
+.swal2-popup {
+    background-color: #2e295f !important;
+    color: #fff !important;
+}
+
+.swal2-confirm {
+    box-shadow: none !important;
+    background-color: #24243e !important;
 }
